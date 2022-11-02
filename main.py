@@ -7,8 +7,8 @@ import random
 pygame.init()
 
 # Pygame Screen
-screen_width=640
-screen_height=480
+screen_width=800
+screen_height=800
 screen=pygame.display.set_mode((screen_width,screen_height))
 
 #game variables
@@ -72,9 +72,9 @@ class Player():
         # check collision with platforms
         for platform in platform_group:
             # collision in the y direction
-            if platform.rect.colliderect(self.rect.x, self.rect.y + dy, self.width, self.height):
+            if platform.rect.colliderect(self.rect.x, self.rect.y-75 + dy, self.width, self.height):
                 # check if above the platform
-                if self.rect.bottom < platform.rect.centery:
+                if self.rect.y < platform.rect.centery:
                     if self.vel_y > 0:
                         self.rect.bottom = platform.rect.top
                         dy = 0
@@ -86,8 +86,9 @@ class Player():
             self.vel_y = -20
 
         # update rectangle position
-        self.rect.x += dx
         self.rect.y += dy
+        self.rect.x += dx
+
 
     def draw(self):
         screen.blit(pygame.transform.flip(self.image, self.flip, False), (self.rect.x - 12, self.rect.y - 5))
@@ -100,8 +101,6 @@ class Paddle(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
-
-
     def move(self):
         #reset movement direction
         key = pygame.key.get_pressed()
@@ -129,7 +128,7 @@ platform_group = pygame.sprite.Group()
 
 # create temporary platforms
 for p in range(MAX_PLATFORMS):
-    p_w = random.randint(40, 60)
+    p_w = random.randint(40, 100)
     p_x = random.randint(0, screen_width - p_w)
     p_y = p * random.randint(80, 120)
     platform = Paddle(p_x, p_y, p_w)
