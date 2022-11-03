@@ -11,28 +11,43 @@ screen_width=800
 screen_height=800
 screen=pygame.display.set_mode((screen_width,screen_height))
 
-#game variables
+# set frame rate
+clock = pygame.time.Clock()
+FPS = 40
+
+# game variables
+SCROLL_THRESH = 200
 GRAVITY = 1
 MAX_PLATFORMS = 10
 WHITE = (0,0,0)
+scroll = 0
+bg_scroll = 0
 
 # Display and Buttons
 pygame.display.set_caption('Get a Job')
 icon=pygame.image.load('bag.png')
 pygame.display.set_icon(icon)
 
-#Player
+# Player
 playerIMG=pygame.image.load('graduate (2).png')
 playerX=370
 playerY=350
 
-#Ledge
+# background IMG
+backIMG = pygame.image.load('bg1.png')
+
+# Ledge
 ledgeIMG=pygame.image.load('remove.png')
 ledgeX=370
 ledgeY=350
 Xchange=0.3
 paddle_col = (142, 135, 123)
 paddle_outline = (100, 100, 100)
+
+
+def draw_bg(bg_scroll):
+    screen.blit(backIMG, (0, 0 + bg_scroll))
+    screen.blit(backIMG, (0, -1000 + bg_scroll))
 
 
 class Player():
@@ -49,8 +64,8 @@ class Player():
         # reset variables
         dx = 0
         dy = 0
-
-        # process keypresses
+        scroll = 0
+        # process key presses
         key = pygame.key.get_pressed()
         if key[pygame.K_a]:
             dx = -10
@@ -85,10 +100,16 @@ class Player():
             dy = 0
             self.vel_y = -20
 
+        # check if the player has bounced to the top of the screen
+        if self.rect.top <= SCROLL_THRESH:
+            # if player is jumping
+            if self.vel_y < 0:
+                scroll = -dy
+
         # update rectangle position
         self.rect.y += dy
         self.rect.x += dx
-
+        return scroll
 
     def draw(self):
         screen.blit(pygame.transform.flip(self.image, self.flip, False), (self.rect.x - 12, self.rect.y - 5))
@@ -101,8 +122,9 @@ class Paddle(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
+
     def move(self):
-        #reset movement direction
+        # reset movement direction
         key = pygame.key.get_pressed()
         if self.direction == -1 and self.rect.left > 0:
             self.rect.x -= self.speed
@@ -118,10 +140,12 @@ class Paddle(pygame.sprite.Sprite):
             self.direction = -1
         print(self.rect.left)
 
+    def update(self, scroll):
+        # update platform's vertical position
+        self.rect.y += scroll
+
 
 player = Player(screen_width // 2, screen_height - 150)
-
-
 
 # create sprite groups
 platform_group = pygame.sprite.Group()
@@ -134,25 +158,32 @@ for p in range(MAX_PLATFORMS):
     platform = Paddle(p_x, p_y, p_w)
     platform_group.add(platform)
 
-
-
 # Game Loop
-running=True
+running = True
 while running:
-    screen.fill((0,0,0))
-    playerY+=1.5
-    player.move()
+    clock.tick(FPS)
+    screen.fill((0, 0, 0))
+    playerY += 1.5
+    scroll = player.move()
+
+    # draw background
+    bg_scroll += scroll
+    if bg_scroll >= 600:
+        bg_scroll = 0
+    draw_bg(bg_scroll)
+
+    # update platforms
+    platform_group.update(scroll)
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
-    if playerX <0:
-        playerX=0
-    bg = [Background(), Background(), Background()]
+    if playerX < 0:
+        playerX = 0
+    '''bg = [Background(), Background(), Background()]
     for o in bg:
         o.setSprite((playerY % 100) / 100)
-        screen.blit(o.sprite, (0, o.position))
-
+        screen.blit(o.sprite, (0, o.position))'''
     player.draw()
     platform_group.draw(screen)
     pygame.display.update()
