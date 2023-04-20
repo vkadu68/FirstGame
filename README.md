@@ -20,3 +20,8 @@ You can also maintain a record of your high score and current score in the game.
 ## Optimization 
 
 In this project, we used the correct data structures and followed appropriate object-oriented programming concepts. We also optimized the background for the application, which improved the performance of the application by 13%.
+
+
+https://user-images.githubusercontent.com/52993591/233489429-40c6a657-2aa0-48f4-a4f1-0fc95af9ea52.mp4
+
+
